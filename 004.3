@@ -4,6 +4,7 @@ import random
 import re
 
 from requests.utils import stream_decode_response_unicode
+from xunfei_tts import text_to_speech 
 
 def call_zhipu_api(messages, model="glm-4-flash"):
     url = "https://open.bigmodel.cn/api/paas/v4/chat/completions"
@@ -184,7 +185,7 @@ while True:
     
     # 打印回复
     print(assistant_reply)
-    
+    text_to_speech(assistant_reply)
     # 检查是否猜对（模型回复"再见"）
     
 
