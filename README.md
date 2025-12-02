@@ -508,6 +508,97 @@ Python基础知识总结
       print("目前只有这一个角色，无法切换。")
   ```
 
+## 16. 类与面向对象（`xunfei_tts.py`）
+
+- **class 定义类**：使用 `class 类名(object):` 定义一个类，并在 `__init__` 中初始化属性  
+  ```python
+  class Ws_Param(object):
+      def __init__(self, APPID, APIKey, APISecret, Text):
+          self.APPID = APPID
+          self.APIKey = APIKey
+          self.APISecret = APISecret
+          self.Text = Text
+  ```
+
+- **实例属性**：通过 `self.xxx` 访问和保存每个实例自己的数据  
+
+## 17. typing 类型提示与泛型容器（`memory-decoupling/*.py`）
+
+- **基础类型提示**：使用 `变量名: 类型` 来标注函数参数和返回值  
+  ```python
+  from typing import List, Dict, Any
+
+  def call_zhipu_api(messages: List[Dict[str, Any]], model: str = "glm-4-flash") -> Dict[str, Any]:
+      ...
+  ```
+
+- **容器类型**：`List[Dict[str, Any]]` 表示“由字典组成的列表”，`Dict[str, Any]` 表示“键为字符串、值为任意类型的字典”。  
+
+## 18. 包与相对导入（`memory-decoupling/*.py`）
+
+- **包结构**：通过目录+模块划分功能，例如 `memory-decoupling/api.py`、`memory-decoupling/chat.py` 等  
+
+- **相对导入（同一包内）**：使用 `from .模块 import 名称` 导入同一包中的其他模块  
+  ```python
+  from .api import call_zhipu_api
+  from .memory import load_memory, save_memory
+  ```
+
+## 19. 文件与路径操作进阶（`memory_101.0.py`、`xunfei_tts.py`、`memory-decoupling/memory.py`）
+
+- **os.path.join 与 exists**：跨平台拼接路径、判断文件是否存在  
+  ```python
+  import os
+
+  if os.path.exists(memory_path):
+      with open(memory_path, 'r', encoding='utf-8') as f:
+          data = json.load(f)
+  ```
+
+- **创建目录与删除文件**：`os.makedirs()` 创建目录，`os.remove()` 删除文件（在 TTS 模块中用于生成和清理音频文件）。  
+
+## 20. WebSocket、多线程与回调函数（`xunfei_tts.py`）
+
+- **回调函数**：将函数名作为参数传入，在特定事件发生时由库自动调用，例如 `on_message`、`on_error`、`on_close`、`on_open`。  
+
+- **WebSocket 客户端**：使用第三方库 `websocket.WebSocketApp` 建立长连接，并在回调中处理数据：  
+  ```python
+  ws = websocket.WebSocketApp(wsUrl,
+                              on_message=on_message,
+                              on_error=on_error,
+                              on_close=on_close)
+  ws.on_open = lambda ws: on_open(ws, wsParam)
+  ```
+
+- **线程 `_thread`**：通过 `thread.start_new_thread(func, args)` 在后台启动新的线程执行任务，不阻塞主线程。  
+
+## 21. 第三方 GUI / Web 框架（`6.2_memory_clonebot_streamlit.py`）
+
+- **Streamlit 基本用法**：用于快速搭建 Web 界面  
+  ```python
+  import streamlit as st
+
+  st.set_page_config(page_title="Talk is cheap Vibe me a future", page_icon="🗨", layout="wide")
+  st.title("Talk is cheap 🗨 Vibe me a future")
+  user_input = st.chat_input("输入你的消息...")
+  ```
+
+- **会话状态 `st.session_state`**：用于在多次请求之间保存对话历史、当前选中角色等状态。  
+
+- **上下文组件**：`with st.sidebar:` 定义侧边栏区域，`with st.chat_message("user"):` 定义对话气泡区域。  
+
+## 22. 模块化分层与解耦设计（`memory_101.0.py`、`memory_101.1.py`、`memory-decoupling/*.py`）
+
+- **按职责拆分模块**：  
+  - `api` 只负责调用大模型接口  
+  - `memory` 只负责读写记忆文件  
+  - `roles` 只负责角色设定和规则文案  
+  - `logic` 只负责结束对话等业务判断  
+  - `chat` 只负责“一轮对话”的封装  
+  - `main` 只负责主循环和异常处理  
+
+- **好处**：每个模块更专一、易于测试和复用，也方便你单独替换某一层实现。  
+
 ## 总结
 
 这些文件涵盖了Python编程的核心基础知识：
